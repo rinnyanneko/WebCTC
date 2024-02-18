@@ -9,7 +9,6 @@ import org.webctc.common.types.signal.SignalState
 import org.webctc.common.types.tecon.shape.Signal
 import pages.xs
 import react.FC
-import react.Props
 import react.ReactNode
 import react.create
 import react.dom.html.ReactHTML.h2
@@ -68,14 +67,8 @@ val SignalElement = FC<SignalElementProps> { props ->
         }
     }
 }
-
-external interface SignalPropertyProps : Props {
-    var signal: Signal
-    var onChange: (Signal) -> Unit
-}
-
-val SignalProperty = FC<SignalPropertyProps> { props ->
-    val signal = props.signal
+val SignalProperty = FC<IShapePropertyElementProps<Signal>> { props ->
+    val signal = props.iShape
     val onChange = props.onChange
     val pos = signal.signalPos
     Box {

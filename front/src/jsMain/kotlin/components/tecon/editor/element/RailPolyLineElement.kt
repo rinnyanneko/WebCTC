@@ -4,7 +4,6 @@ import components.railgroup.detail.BoxRailGroupList
 import mui.material.Box
 import org.webctc.common.types.tecon.shape.RailPolyLine
 import react.FC
-import react.Props
 import react.dom.html.ReactHTML.h2
 import react.dom.svg.ReactSVG.polyline
 
@@ -38,14 +37,9 @@ val RailPolyLineElement = FC<RailPolyLineElementProps> { props ->
     }
 }
 
-external interface RailPolyLinePropertyProps : Props {
-    var railLine: RailPolyLine
-    var onChange: (RailPolyLine) -> Unit
-}
-
-val RailPolyLineProperty = FC<RailPolyLinePropertyProps> { props ->
-    val railLine = props.railLine
-    val uuids = props.railLine.railGroupList
+val RailPolyLineProperty = FC<IShapePropertyElementProps<RailPolyLine>> { props ->
+    val railLine = props.iShape
+    val uuids = props.iShape.railGroupList
     val onChange = props.onChange
 
     Box {

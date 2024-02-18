@@ -3,9 +3,6 @@ package components.tecon
 import client
 import components.common.OutlinedInputWithLabel
 import components.tecon.editor.*
-import components.tecon.editor.element.RailLineProperty
-import components.tecon.editor.element.RailPolyLineProperty
-import components.tecon.editor.element.SignalProperty
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.MainScope
@@ -15,9 +12,6 @@ import mui.system.sx
 import org.webctc.common.types.PosInt2D
 import org.webctc.common.types.tecon.TeCon
 import org.webctc.common.types.tecon.shape.IShape
-import org.webctc.common.types.tecon.shape.RailLine
-import org.webctc.common.types.tecon.shape.RailPolyLine
-import org.webctc.common.types.tecon.shape.Signal
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.h2
@@ -62,13 +56,13 @@ val TeConEditorViewComponent = FC<TeConEditorViewComponentProps> { props ->
             cursorVisibility = mode.posCount > 0
             onClick = { _ ->
                 if (mode.posCount > 0) {
-                    val isMultipleSelect = mode.posCount == Int.MAX_VALUE
+                    val isInfinitySelection = mode.isInfinitySelection()
 
                     var newSelectedPosList =
-                        if (nowMousePos in selectedPosList && !isMultipleSelect) selectedPosList - nowMousePos
+                        if (nowMousePos in selectedPosList && !isInfinitySelection) selectedPosList - nowMousePos
                         else selectedPosList + nowMousePos.copy()
 
-                    val fin = selectedPosList.lastOrNull() == nowMousePos && isMultipleSelect
+                    val fin = selectedPosList.lastOrNull() == nowMousePos && isInfinitySelection
                     if (fin) newSelectedPosList = newSelectedPosList.dropLast(1)
 
                     if (newSelectedPosList.size == mode.posCount || fin) {
@@ -118,74 +112,38 @@ val TeConEditorViewComponent = FC<TeConEditorViewComponentProps> { props ->
                         overflow = Auto.auto
                     }
                     CardContent {
-                        h2 { +"Editor" }
-                        Box {
-                            sx {
-                                display = Display.flex
-                                flexDirection = FlexDirection.column
-                                gap = 16.px
-                            }
-
-                            OutlinedInputWithLabel {
-                                this.name = name
-                                this.onChange = { name = it }
-                            }
-
-                            Box {
-                                sx {
-                                    display = Display.flex
-                                    gap = 8.px
+                        BoxSettings {
+                            panzoom = panzoomRef.current
+                            this.name = name
+                            onChangeName = { name = it }
+                            setDotVisibility = { dotVisible = it }
+                            onChangeEditMode = {
+                                if (it == EditMode.HAND) {
+                                    panzoomRef.current?.resume()
+                                } else {
+                                    panzoomRef.current?.pause()
                                 }
-                                ToggleButtonHome { panzoom = panzoomRef.current }
-
-                                ToggleButtonGroupZoom { panzoom = panzoomRef.current }
-
-                                ToggleButtonGroupVisibility { onChange = { dotVisible = it } }
+                                mode = it
+                                selectedPosList = listOf()
                             }
-                            ToggleButtonGroupEditMode {
-                                onChange = {
-                                    if (it == EditMode.HAND) {
-                                        panzoomRef.current?.resume()
-                                    } else {
-                                        panzoomRef.current?.pause()
+                            canSave = (name != tecon.name || parts != tecon.parts) && !sending
+                            onSave = {
+                                sending = true
+
+                                val newTeCon = tecon.copy(name = name, parts = parts)
+                                MainScope().launch {
+                                    client.put("/api/tecons/${tecon.uuid}") {
+                                        contentType(ContentType.Application.Json)
+                                        setBody(newTeCon)
                                     }
-                                    mode = it
-                                    selectedPosList = listOf()
+                                    tecon.updateBy(newTeCon)
+                                    sending = false
                                 }
                             }
-                            Box {
-                                sx {
-                                    display = Display.flex
-                                    justifyContent = JustifyContent.spaceBetween
-                                }
-                                Button {
-                                    +"Save"
-                                    variant = ButtonVariant.contained
-                                    disabled = name == tecon.name && parts == tecon.parts || sending
-                                    onClick = {
-                                        sending = true
-
-                                        val newTeCon = tecon.copy(name = name, parts = parts)
-                                        MainScope().launch {
-                                            client.put("/api/tecons/${tecon.uuid}") {
-                                                contentType(ContentType.Application.Json)
-                                                setBody(newTeCon)
-                                            }
-                                            tecon.updateBy(newTeCon)
-                                            sending = false
-                                        }
-                                    }
-                                }
-                                Button {
-                                    +"Delete"
-                                    variant = ButtonVariant.outlined
-                                    color = ButtonColor.error
-                                    onClick = {
-                                        MainScope().launch {
-                                            client.delete("/api/tecons/${tecon.uuid}")
-                                            navigate("/p/tecons")
-                                        }
-                                    }
+                            onDelete = {
+                                MainScope().launch {
+                                    client.delete("/api/tecons/${tecon.uuid}")
+                                    navigate("/p/tecons")
                                 }
                             }
                         }
@@ -200,32 +158,84 @@ val TeConEditorViewComponent = FC<TeConEditorViewComponentProps> { props ->
                             overflow = Auto.auto
                         }
                         CardContent {
-                            val onChange = { it: IShape ->
+                            +EditMode.createPropertyElement(part) {
                                 val index = parts.indexOf(part)
                                 selectedPart = it
                                 parts = parts.setNew(index, it)
                             }
-                            when (part) {
-                                is RailLine -> RailLineProperty {
-                                    railLine = part
-                                    this.onChange = onChange
-                                }
-
-                                is RailPolyLine -> RailPolyLineProperty {
-                                    railLine = part
-                                    this.onChange = onChange
-                                }
-
-                                is Signal -> SignalProperty {
-                                    signal = part
-                                    this.onChange = onChange
-                                }
-
-                                else -> {}
-                            }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+external interface BoxSettingsProps : Props {
+    var panzoom: dynamic
+    var name: String
+    var onChangeName: (String) -> Unit
+    var setDotVisibility: (Boolean) -> Unit
+    var onChangeEditMode: (EditMode) -> Unit
+    var canSave: Boolean
+    var onSave: () -> Unit
+    var onDelete: () -> Unit
+}
+
+private val BoxSettings = FC<BoxSettingsProps> { props ->
+    val panzoom = props.panzoom
+    val name = props.name
+    val onChangeName = props.onChangeName
+    val setDotVisibility = props.setDotVisibility
+    val onChangeEditMode = props.onChangeEditMode
+    val canSave = props.canSave
+    val onSave = props.onSave
+    val onDelete = props.onDelete
+
+
+    h2 { +"Editor" }
+    Box {
+        sx {
+            display = Display.flex
+            flexDirection = FlexDirection.column
+            gap = 16.px
+        }
+
+        OutlinedInputWithLabel {
+            this.name = name
+            this.onChange = onChangeName
+        }
+
+        Box {
+            sx {
+                display = Display.flex
+                gap = 8.px
+            }
+            ToggleButtonHome { this.panzoom = panzoom }
+
+            ToggleButtonGroupZoom { this.panzoom = panzoom }
+
+            ToggleButtonGroupVisibility { onChange = setDotVisibility }
+        }
+        ToggleButtonGroupEditMode {
+            onChange = onChangeEditMode
+        }
+        Box {
+            sx {
+                display = Display.flex
+                justifyContent = JustifyContent.spaceBetween
+            }
+            Button {
+                +"Save"
+                variant = ButtonVariant.contained
+                disabled = !canSave
+                onClick = { onSave() }
+            }
+            Button {
+                +"Delete"
+                variant = ButtonVariant.outlined
+                color = ButtonColor.error
+                onClick = { onDelete() }
             }
         }
     }

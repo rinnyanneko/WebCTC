@@ -110,42 +110,11 @@ val TeConEdit = FC {
                             borderRadius = 16.px
                             padding = 16.px
                         }
-                        Paper {
-                            elevation = 0
-                            sx {
-                                backgroundColor = Color("rgba(255,255,255,0.4)")
-                                height = 100.pct
-                                overflow = Auto.auto
-                            }
-                            List {
-                                dense = true
-                                disablePadding = true
-                                railGroups
-                                    .filter { selectedRail == null || selectedRail in it.railPosList }
-                                    .sortedBy { it.name }
-                                    .forEach { rg ->
-                                        Paper {
-                                            elevation = 0
-                                            sx { borderRadius = 0.px }
-                                            ListItem {
-                                                disableGutters = true
-                                                disablePadding = true
-                                                secondaryAction = IconButton.create {
-                                                    ContentCopy {}
-                                                    onClick = { navigator.clipboard.writeText(rg.uuid.toString()) }
-                                                }
-                                                ListItemButton {
-                                                    selected = rg.uuid == activeRailGroupUUID
-                                                    onClick = { activeRailGroupUUID = rg.uuid }
-                                                    ListItemText {
-                                                        primary = ReactNode(rg.name)
-                                                        secondary = ReactNode("${rg.railPosList.size} rails")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                            }
+                        RailGroupList {
+                            this.railGroups = railGroups
+                            this.selectedRail = selectedRail
+                            this.activeRailGroupUUID = activeRailGroupUUID
+                            this.setActiveRailGroupUUID = { activeRailGroupUUID = it }
                         }
                     }
                 }
@@ -166,6 +135,76 @@ val TeConEdit = FC {
                         this.tecon = tecon!!
                     }
                 }
+            }
+        }
+    }
+}
+
+external interface RailGroupListProps : Props {
+    var railGroups: List<RailGroup>
+    var selectedRail: PosInt?
+    var activeRailGroupUUID: UUID?
+    var setActiveRailGroupUUID: (UUID?) -> Unit
+}
+
+private val RailGroupList = FC<RailGroupListProps> { props ->
+    val railGroups = props.railGroups
+    val selectedRail = props.selectedRail
+    val activeRailGroupUUID = props.activeRailGroupUUID
+    val setActiveRailGroupUUID = props.setActiveRailGroupUUID
+
+    Paper {
+        elevation = 0
+        sx {
+            backgroundColor = Color("rgba(255,255,255,0.4)")
+            height = 100.pct
+            overflow = Auto.auto
+        }
+        List {
+            dense = true
+            disablePadding = true
+            railGroups
+                .filter { selectedRail == null || selectedRail in it.railPosList }
+                .sortedBy { it.name }
+                .forEach { rg ->
+                    Paper {
+                        elevation = 0
+                        sx { borderRadius = 0.px }
+                        ListItemRailGroup {
+                            railGroup = rg
+                            selected = rg.uuid == activeRailGroupUUID
+                            onClick = { setActiveRailGroupUUID(rg.uuid) }
+                        }
+                    }
+                }
+        }
+    }
+}
+
+external interface ListItemRailGroupProps : Props {
+    var railGroup: RailGroup
+    var selected: Boolean
+    var onClick: () -> Unit
+}
+
+private val ListItemRailGroup = FC<ListItemRailGroupProps> { props ->
+    val railGroup = props.railGroup
+    val selected = props.selected
+    val onClick = props.onClick
+
+    ListItem {
+        disableGutters = true
+        disablePadding = true
+        secondaryAction = IconButton.create {
+            ContentCopy {}
+            this.onClick = { navigator.clipboard.writeText(railGroup.uuid.toString()) }
+        }
+        ListItemButton {
+            this.selected = selected
+            this.onClick = { onClick() }
+            ListItemText {
+                primary = ReactNode(railGroup.name)
+                secondary = ReactNode("${railGroup.railPosList.size} rails")
             }
         }
     }

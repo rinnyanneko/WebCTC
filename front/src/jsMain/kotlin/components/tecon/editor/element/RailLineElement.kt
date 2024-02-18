@@ -5,7 +5,6 @@ import mui.material.Box
 import org.webctc.common.types.railgroup.RailGroupState
 import org.webctc.common.types.tecon.shape.RailLine
 import react.FC
-import react.Props
 import react.dom.html.ReactHTML.h2
 import react.dom.svg.ReactSVG.path
 import kotlin.math.abs
@@ -54,14 +53,9 @@ val RailLineElement = FC<LineElementProps> { props ->
     }
 }
 
-external interface RailLinePropertyProps : Props {
-    var railLine: RailLine
-    var onChange: (RailLine) -> Unit
-}
-
-val RailLineProperty = FC<RailLinePropertyProps> { props ->
-    val railLine = props.railLine
-    val uuids = props.railLine.railGroupList
+val RailLineProperty = FC<IShapePropertyElementProps<RailLine>> { props ->
+    val railLine = props.iShape
+    val uuids = props.iShape.railGroupList
     val onChange = props.onChange
 
     Box {

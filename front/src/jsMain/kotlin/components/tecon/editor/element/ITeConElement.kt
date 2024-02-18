@@ -24,6 +24,11 @@ external interface IShapeElementProps<out T : IShape> : Props {
     var iShape: @UnsafeVariance T
 }
 
+external interface IShapePropertyElementProps<out T : IShape> : Props {
+    var iShape: @UnsafeVariance T
+    var onChange: (@UnsafeVariance T) -> Unit
+}
+
 external interface ITeConElementBaseProps : PropsWithChildren {
     var mode: EditMode?
     var fill: String?

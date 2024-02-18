@@ -10,17 +10,31 @@ import react.create
 sealed class EditMode(
     val posCount: Int = 0,
     val createIShape: ((List<PosInt2D>) -> IShape?) = { null },
-    val createElement: (Props.() -> Unit) -> ReactElement<*>? = { null },
+    val viewElement: (Props.() -> Unit) -> ReactElement<*>? = { null },
+    val propertyElement: (Props.() -> Unit) -> ReactElement<*>? = { null }
 ) {
     data object CURSOR : EditMode()
     data object HAND : EditMode()
     data object ERASER : EditMode()
-    data object RAIL : EditMode(2, { (start, end) -> RailLine(start, end) }, { RailLineElement.create { it(this) } })
-    data object POLYLINE : EditMode(Int.MAX_VALUE, { RailPolyLine(it) }, { RailPolyLineElement.create { it(this) } })
-    data object SIGNAL : EditMode(1, { (pos) -> Signal(pos) }, { SignalElement.create { it(this) } })
+    data object RAIL : EditMode(2, { (start, end) -> RailLine(start, end) },
+        { RailLineElement.create { it(this) } },
+        { RailLineProperty.create { it(this) } }
+    )
+
+    data object POLYLINE : EditMode(Int.MAX_VALUE, { RailPolyLine(it) },
+        { RailPolyLineElement.create { it(this) } },
+        { RailPolyLineProperty.create { it(this) } }
+    )
+
+    data object SIGNAL : EditMode(1, { (pos) -> Signal(pos) },
+        { SignalElement.create { it(this) } },
+        { SignalProperty.create { it(this) } }
+    )
     data object TECON : EditMode(1, { (pos) -> TeConLever(pos) })
     data object ROUTE : EditMode(1, { (pos) -> Route(pos) })
     data object RECT : EditMode(2, { (start, end) -> RectBox(start, end) }, { RectBoxElement.create { it(this) } })
+
+    fun isInfinitySelection() = posCount == Int.MAX_VALUE
 
     companion object {
         private fun findMode(iShape: IShape): EditMode? {
@@ -42,6 +56,7 @@ sealed class EditMode(
             onDelete: () -> Unit,
             selected: Boolean
         ): ReactElement<*>? {
+
             val baseSetter: (ITeConElementProps) -> Unit = {
                 it.mode = mode
                 it.onDelete = onDelete
@@ -50,7 +65,8 @@ sealed class EditMode(
             }
             val shapeSetter: (IShapeElementProps<IShape>) -> Unit = { it.iShape = iShape }
 
-            val createElement = findMode(iShape)?.createElement ?: return null
+            val iShapeMode = findMode(iShape) ?: return null
+            val createElement = iShapeMode.viewElement
 
             @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             return createElement {
@@ -66,10 +82,25 @@ sealed class EditMode(
             val shapeSetter: (IShapeElementProps<IShape>) -> Unit = { it.iShape = iShape }
 
             @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-            return mode.createElement {
+            return mode.viewElement {
                 (this as? PreviewElementProps)?.let(previewProps)
                 (this as? IShapeElementProps<IShape>)?.let(shapeSetter)
             }
+        }
+
+        fun createPropertyElement(iShape: IShape, onChange: (IShape) -> Unit): ReactElement<*>? {
+            val mode = findMode(iShape) ?: return null
+
+            val shapeSetter: (IShapePropertyElementProps<IShape>) -> Unit = {
+                it.iShape = iShape
+                it.onChange = onChange
+            }
+
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+            return mode.propertyElement {
+                (this as? IShapePropertyElementProps<IShape>)?.let(shapeSetter)
+            }
+
         }
     }
 }
