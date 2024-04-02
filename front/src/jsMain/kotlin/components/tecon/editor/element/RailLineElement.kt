@@ -2,11 +2,14 @@ package components.tecon.editor.element
 
 import components.railgroup.detail.BoxRailGroupList
 import mui.material.Box
+import mui.material.Typography
+import mui.system.sx
 import org.webctc.common.types.railgroup.RailGroupState
 import org.webctc.common.types.tecon.shape.RailLine
 import react.FC
-import react.dom.html.ReactHTML.h2
 import react.dom.svg.ReactSVG.path
+import web.cssom.FontSize
+import web.cssom.FontWeight
 import kotlin.math.abs
 
 external interface RGStateElementProps : ITeConElementProps, PreviewElementProps {
@@ -24,9 +27,9 @@ val RailLineElement = FC<LineElementProps> { props ->
     val rgStateList = props.rgState ?: emptySet()
 
     val color =
-        if (rgStateList.any { it.trainOnRail == true }) "red"
-        else if (rgStateList.any { it.reserved == true }) "yellow"
-        else if (rgStateList.any { it.locked == true }) "orange"
+        if (rgStateList.any { it.trainOnRail }) "red"
+        else if (rgStateList.any { it.reserved }) "yellow"
+        else if (rgStateList.any { it.locked }) "orange"
         else if (railLine.railGroupList.isEmpty()) "gray"
         else "white"
 
@@ -61,7 +64,13 @@ val RailLineProperty = FC<IShapePropertyElementProps<RailLine>> { props ->
     val onChange = props.onChange
 
     Box {
-        h2 { +"RailLine" }
+        Typography {
+            sx {
+                fontSize = FontSize.larger
+                fontWeight = FontWeight.bold
+            }
+            +"RailLine"
+        }
     }
     BoxRailGroupList {
         title = "Properties(RailLine)"

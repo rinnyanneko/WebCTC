@@ -61,7 +61,11 @@ val SignalProperty = FC<IShapePropertyElementProps<Signal>> { props ->
     val onChange = props.onChange
     val pos = signal.signalPos
     Box {
-        h2 {
+        Typography {
+            sx {
+                fontSize = FontSize.larger
+                fontWeight = FontWeight.bold
+            }
             +"Signal"
         }
         Box {
@@ -107,6 +111,9 @@ val SignalProperty = FC<IShapePropertyElementProps<Signal>> { props ->
                     }
                 }
                 Grid {
+                    sx {
+                        width = 6.rem
+                    }
                     item = true
                     OutlinedInput {
                         disabled = signal.rotation == null

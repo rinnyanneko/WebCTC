@@ -2,10 +2,13 @@ package components.tecon.editor.element
 
 import components.railgroup.detail.BoxRailGroupList
 import mui.material.Box
+import mui.material.Typography
+import mui.system.sx
 import org.webctc.common.types.tecon.shape.RailPolyLine
 import react.FC
-import react.dom.html.ReactHTML.h2
 import react.dom.svg.ReactSVG.polyline
+import web.cssom.FontSize
+import web.cssom.FontWeight
 
 external interface RailPolyLineElementProps : RGStateElementProps, IShapeElementProps<RailPolyLine>
 
@@ -16,9 +19,9 @@ val RailPolyLineElement = FC<RailPolyLineElementProps> { props ->
     val rgStateList = props.rgState ?: emptySet()
 
     val color =
-        if (rgStateList.any { it.trainOnRail == true }) "red"
-        else if (rgStateList.any { it.reserved == true }) "yellow"
-        else if (rgStateList.any { it.locked == true }) "orange"
+        if (rgStateList.any { it.trainOnRail }) "red"
+        else if (rgStateList.any { it.reserved }) "yellow"
+        else if (rgStateList.any { it.locked }) "orange"
         else if (railPolyLine.railGroupList.isEmpty()) "gray"
         else "white"
 
@@ -45,7 +48,13 @@ val RailPolyLineProperty = FC<IShapePropertyElementProps<RailPolyLine>> { props 
     val onChange = props.onChange
 
     Box {
-        h2 { +"RailPolyLine" }
+        Typography {
+            sx {
+                fontSize = FontSize.larger
+                fontWeight = FontWeight.bold
+            }
+            +"RailPolyLine"
+        }
     }
     BoxRailGroupList {
         title = "Properties(RailPolyLine)"

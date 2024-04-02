@@ -14,7 +14,6 @@ import org.webctc.common.types.tecon.TeCon
 import org.webctc.common.types.tecon.shape.IShape
 import react.FC
 import react.Props
-import react.dom.html.ReactHTML.h2
 import react.router.useNavigate
 import react.useRef
 import react.useState
@@ -192,8 +191,13 @@ private val BoxSettings = FC<BoxSettingsProps> { props ->
     val onSave = props.onSave
     val onDelete = props.onDelete
 
-
-    h2 { +"Editor" }
+    Typography {
+        sx {
+            fontSize = FontSize.larger
+            fontWeight = FontWeight.bold
+        }
+        +"Editor"
+    }
     Box {
         sx {
             display = Display.flex
