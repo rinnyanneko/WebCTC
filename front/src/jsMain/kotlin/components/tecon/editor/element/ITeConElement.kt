@@ -36,6 +36,7 @@ external interface ITeConElementBaseProps : PropsWithChildren {
     var onSelect: (() -> Unit)?
     var onDelete: (() -> Unit)?
     var selected: Boolean?
+    var transform: String?
 }
 
 val ITeConElementBase = FC<ITeConElementBaseProps> { props ->
@@ -59,6 +60,7 @@ val ITeConElementBase = FC<ITeConElementBaseProps> { props ->
                 if (props.stroke == null) "none" else if (props.selected == true) "lightblue" else props.stroke
             )
         }
+        transform = props.transform
 
         when (props.mode) {
             EditMode.ERASER -> onClick = { props.onDelete?.let { it() } }

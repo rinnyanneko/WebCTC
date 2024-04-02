@@ -5,7 +5,8 @@ import org.webctc.common.types.PosInt2D
 
 @Serializable
 data class Route(
-    val pos: PosInt2D,
+    override val pos: PosInt2D,
+    val id: String = "",
     val name: String = "",
     override val zIndex: Int = 0
 ) : IShape

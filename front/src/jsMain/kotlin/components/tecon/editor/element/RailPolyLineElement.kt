@@ -11,6 +11,7 @@ external interface RailPolyLineElementProps : RGStateElementProps, IShapeElement
 
 val RailPolyLineElement = FC<RailPolyLineElementProps> { props ->
     val railPolyLine = props.iShape
+    val pos = railPolyLine.pos
 
     val rgStateList = props.rgState ?: emptySet()
 
@@ -26,6 +27,7 @@ val RailPolyLineElement = FC<RailPolyLineElementProps> { props ->
         onDelete = props.onDelete
         onSelect = props.onSelect
         stroke = color
+        transform = "translate(${pos.x} ${pos.y})"
 
         polyline {
             strokeWidth = 8.0

@@ -16,12 +16,18 @@ sealed class EditMode(
     data object CURSOR : EditMode()
     data object HAND : EditMode()
     data object ERASER : EditMode()
-    data object RAIL : EditMode(2, { (start, end) -> RailLine(start, end) },
+
+    data object RAIL : EditMode(
+        2, { (start, end) -> RailLine(start, PosInt2D.ZERO, end - start) },
         { RailLineElement.create { it(this) } },
         { RailLineProperty.create { it(this) } }
     )
 
-    data object POLYLINE : EditMode(Int.MAX_VALUE, { RailPolyLine(it) },
+    data object POLYLINE : EditMode(
+        Int.MAX_VALUE, {
+            val first = it.first()
+            RailPolyLine(first, it.map { pos -> pos - first })
+        },
         { RailPolyLineElement.create { it(this) } },
         { RailPolyLineProperty.create { it(this) } }
     )
@@ -30,9 +36,16 @@ sealed class EditMode(
         { SignalElement.create { it(this) } },
         { SignalProperty.create { it(this) } }
     )
-    data object TECON : EditMode(1, { (pos) -> TeConLever(pos) })
+
+    data object TECON : EditMode(1, { (pos) -> TeConLever(pos) },
+        { TeConLeverElement.create { it(this) } },
+        { TeConLeverProperty.create { it(this) } })
+
     data object ROUTE : EditMode(1, { (pos) -> Route(pos) })
-    data object RECT : EditMode(2, { (start, end) -> RectBox(start, end) }, { RectBoxElement.create { it(this) } })
+
+    data object RECT : EditMode(
+        2, { (start, end) -> RectBox(start, PosInt2D.ZERO, end - start) },
+        { RectBoxElement.create { it(this) } })
 
     fun isInfinitySelection() = posCount == Int.MAX_VALUE
 

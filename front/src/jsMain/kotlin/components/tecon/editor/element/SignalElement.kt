@@ -2,6 +2,7 @@ package components.tecon.editor.element
 
 import components.railgroup.detail.TextFieldPosIntXYZ
 import mui.material.*
+import mui.material.Size
 import mui.system.responsive
 import mui.system.sx
 import org.webctc.common.types.PosInt
@@ -11,15 +12,9 @@ import pages.xs
 import react.FC
 import react.ReactNode
 import react.create
-import react.dom.html.ReactHTML.h2
 import react.dom.svg.ReactSVG.circle
 import react.dom.svg.ReactSVG.line
-import web.cssom.AlignItems
-import web.cssom.Display
-import web.cssom.px
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
+import web.cssom.*
 
 external interface SignalElementProps : ITeConElementProps, IShapeElementProps<Signal> {
     var signalState: SignalState?
@@ -29,9 +24,6 @@ val SignalElement = FC<SignalElementProps> { props ->
     val signal = props.iShape
     val pos = signal.pos
     val rotation = signal.rotation
-    val x = pos.x
-    val y = pos.y
-
     val signalLevel = props.signalState?.level ?: 0
 
     ITeConElementBase {
@@ -41,27 +33,24 @@ val SignalElement = FC<SignalElementProps> { props ->
         fill = (if (signalLevel > 1) "LawnGreen" else "#202020")
         stroke = if (signal.signalPos == PosInt.ZERO) "gray" else "white"
         selected = props.selected
+        transform = "translate(${pos.x} ${pos.y}) rotate(${rotation ?: 0})"
         rotation?.let {
-            val cos = cos((-rotation - 90) * (PI / 180))
-            val sin = sin((-rotation - 90) * (PI / 180))
             line {
-                x1 = x.toDouble() + 12 * cos
-                y1 = y.toDouble() - 12 * sin
-                x2 = x.toDouble() + 32 * cos
-                y2 = y.toDouble() - 32 * sin
+                x1 = 0.0
+                y1 = 12.0
+                x2 = 0.0
+                y2 = 32.0
                 strokeWidth = 4.0
             }
             line {
-                x1 = x.toDouble() + 32 * cos + 12 * sin
-                y1 = y.toDouble() + 12 * cos - 32 * sin
-                x2 = x.toDouble() + 32 * cos - 12 * sin
-                y2 = y.toDouble() - 12 * cos - 32 * sin
+                x1 = 12.0
+                y1 = 32.0
+                x2 = -12.0
+                y2 = 32.0
                 strokeWidth = 4.0
             }
         }
         circle {
-            cx = x.toDouble()
-            cy = y.toDouble()
             r = 12.0
             strokeWidth = 4.0
         }

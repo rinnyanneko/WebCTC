@@ -17,6 +17,7 @@ external interface LineElementProps : RGStateElementProps, IShapeElementProps<Ra
 
 val RailLineElement = FC<LineElementProps> { props ->
     val railLine = props.iShape
+    val pos = railLine.pos
     val startPos = railLine.start
     val endPos = railLine.end
 
@@ -35,6 +36,7 @@ val RailLineElement = FC<LineElementProps> { props ->
         onSelect = props.onSelect
         fill = color
         selected = props.selected
+        transform = "translate(${pos.x} ${pos.y})"
         path {
             val startX = startPos.x
             val startY = startPos.y

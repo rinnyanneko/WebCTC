@@ -49,6 +49,14 @@ data class PosInt2D(val x: Int, val y: Int) {
     override fun toString(): String {
         return "$x,$y"
     }
+
+    operator fun minus(start: PosInt2D): PosInt2D {
+        return PosInt2D(this.x - start.x, this.y - start.y)
+    }
+
+    companion object {
+        val ZERO = PosInt2D(0, 0)
+    }
 }
 
 @Serializable

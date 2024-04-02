@@ -10,12 +10,14 @@ external interface RectBoxElementProps : ITeConElementProps, PreviewElementProps
 
 val RectBoxElement = FC<RectBoxElementProps> { props ->
     val rectBox = props.iShape
+    val pos = rectBox.pos
 
     ITeConElementBase {
         mode = props.mode
         onDelete = props.onDelete
         onSelect = props.onSelect
         selected = props.selected
+        transform = "translate(${pos.x} ${pos.y})"
         stroke = "white"
 
         val minX = min(rectBox.start.x, rectBox.end.x).toDouble()
