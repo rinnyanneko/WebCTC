@@ -7,6 +7,9 @@ import kotlinx.serialization.modules.subclass
 import org.webctc.common.types.rail.IRailMapData
 import org.webctc.common.types.rail.RailMapData
 import org.webctc.common.types.rail.RailMapSwitchData
+import org.webctc.common.types.tecon.route.IRouteComposition
+import org.webctc.common.types.tecon.route.RouteCompositionLock
+import org.webctc.common.types.tecon.route.RouteCompositionRedStone
 import org.webctc.common.types.tecon.shape.*
 import org.webctc.common.types.waypoint.range.CircleRange
 import org.webctc.common.types.waypoint.range.IRange
@@ -91,6 +94,10 @@ val kotlinxJson = Json {
             subclass(TeConLever::class)
             subclass(Route::class)
             subclass(RectBox::class)
+        }
+        polymorphic(IRouteComposition::class) {
+            subclass(RouteCompositionRedStone::class)
+            subclass(RouteCompositionLock::class)
         }
     }
     ignoreUnknownKeys = true
