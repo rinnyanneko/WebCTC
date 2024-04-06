@@ -71,12 +71,10 @@ val ToggleButtonGroupEditMode = FC<ToggleButtonGroupEditModeProps> {
             ToggleButton {
                 WciRouteLever {}
                 value = EditMode.TECON
-                disabled = true
             }
             ToggleButton {
                 WciRouteSelection {}
                 value = EditMode.ROUTE
-                disabled = true
             }
         }
 
