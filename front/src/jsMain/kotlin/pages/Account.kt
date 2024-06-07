@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import js.buffer.ArrayBuffer
 import js.objects.jso
-import js.promise.await
 import js.typedarrays.Uint8Array
 import js.typedarrays.toUint8Array
 import kotlinx.coroutines.MainScope
@@ -208,7 +207,7 @@ val Account = FC {
                             try {
                                 val pubKey: WebAuthnRegistrationOption = client.post("/auth/webauthn/challenge").body()
                                 val credential =
-                                    navigator.credentials.create(pubKey.toOption()).await() as? PublicKeyCredential
+                                    navigator.credentials.createAsync(pubKey.toOption()).await() as? PublicKeyCredential
                                         ?: throw Exception("Credential is null")
 
                                 val credentialData = credential.response as AuthenticatorAttestationResponse

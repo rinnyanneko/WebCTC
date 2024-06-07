@@ -28,7 +28,7 @@ val BoxRgUUID = FC<BoxRgUUIDProps> { props ->
                     position = InputAdornmentPosition.end
                     IconButton {
                         ContentCopy {}
-                        onClick = { navigator.clipboard.writeText(uuid.toString()) }
+                        onClick = { navigator.clipboard.writeTextAsync(uuid.toString()) }
                     }
                 }
             }

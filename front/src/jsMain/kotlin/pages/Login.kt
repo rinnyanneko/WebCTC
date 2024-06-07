@@ -9,7 +9,6 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import js.objects.jso
-import js.promise.await
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -65,7 +64,7 @@ val Login = FC {
                                 client.post("/auth/webauthn/auth-challenge").body()
 
                             val webOptions = options.toOptions()
-                            val credential = navigator.credentials[webOptions].await() as? PublicKeyCredential
+                            val credential = navigator.credentials.getAsync(webOptions).await() as? PublicKeyCredential
                                 ?: throw Exception("credential is null")
 
                             val credentialData = credential.response as AuthenticatorAssertionResponse

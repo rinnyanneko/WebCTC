@@ -197,7 +197,7 @@ private val ListItemRailGroup = FC<ListItemRailGroupProps> { props ->
         disablePadding = true
         secondaryAction = IconButton.create {
             ContentCopy {}
-            this.onClick = { navigator.clipboard.writeText(railGroup.uuid.toString()) }
+            this.onClick = { navigator.clipboard.writeTextAsync(railGroup.uuid.toString()) }
         }
         ListItemButton {
             this.selected = selected
