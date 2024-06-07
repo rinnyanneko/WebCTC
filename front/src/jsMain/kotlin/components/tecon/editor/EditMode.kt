@@ -37,9 +37,7 @@ sealed class EditMode(
         { SignalProperty.create { it(this) } }
     )
 
-    data object TECON : EditMode(1, { (pos) -> TeConLever(pos) },
-        { TeConLeverElement.create { it(this) } },
-        { TeConLeverProperty.create { it(this) } })
+    data object TECON : EditMode(1, { (pos) -> TeConLever(pos) })
 
     data object ROUTE : EditMode(1, { (pos) -> Route(pos) })
 
