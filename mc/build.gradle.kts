@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.distsDirectory
-
 plugins {
     java
     `java-gradle-plugin`
@@ -86,7 +84,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 tasks.jar {
     dependsOn(":front:build")
 
-    distsDirectory.set(File(parent!!.buildDir, "libs"))
+    destinationDirectory.set(File(parent!!.buildDir, "libs"))
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
